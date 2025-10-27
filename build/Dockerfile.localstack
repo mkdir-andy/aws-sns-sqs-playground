@@ -1,0 +1,4 @@
+FROM localstack/localstack:3.3
+
+COPY scripts/setup_localstack.sh /etc/localstack/init/ready.d/setup_localstack.sh
+RUN chmod +x /etc/localstack/init/ready.d/setup_localstack.sh

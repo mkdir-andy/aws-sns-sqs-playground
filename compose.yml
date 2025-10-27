@@ -1,0 +1,64 @@
+services:
+  localstack:
+    build:
+      context: .
+      dockerfile: build/Dockerfile.localstack
+    ports:
+      - '4566:4566'
+    environment:
+      - SERVICES=sns,sqs
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./.env:/etc/localstack/.env
+
+  publisher:
+    build:
+      context: .
+      dockerfile: build/Dockerfile.publisher
+    depends_on:
+      - localstack
+    environment:
+      - AWS_ENDPOINT=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    command: ["go", "run", "./cmd/publisher/main.go"]
+    volumes:
+      - ./.env:/app/.env
+
+  consumer1:
+    build:
+      context: .
+      dockerfile: build/Dockerfile.consumer
+    depends_on:
+      - localstack
+    environment:
+      - AWS_ENDPOINT=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - QUEUE_NAME=test-queue-1
+    command: ["go", "run", "./cmd/consumer/main.go"]
+    volumes:
+      - ./.env:/app/.env
+
+  consumer2:
+    build:
+      context: .
+      dockerfile: build/Dockerfile.consumer
+    depends_on:
+      - localstack
+    environment:
+      - AWS_ENDPOINT=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - QUEUE_NAME=test-queue-2
+    command: ["go", "run", "./cmd/consumer/main.go"]
+    volumes:
+      - ./.env:/app/.env
