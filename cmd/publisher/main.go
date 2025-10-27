@@ -3,12 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"os"
+
+	"aws-sns-sqs-playground/internal/config"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sns"
-	"github.com/joho/godotenv"
 )
 
 type Message struct {
@@ -16,32 +16,19 @@ type Message struct {
 	Body string `json:"body"`
 }
 
-type Config struct {
-	AWSRegion   string
-	AWSEndpoint string
-}
-
-func LoadConfig() (*Config, error) {
-	_ = godotenv.Load(".env")
-	cfg := &Config{
-		AWSRegion:   os.Getenv("AWS_REGION"),
-		AWSEndpoint: os.Getenv("AWS_ENDPOINT"),
-	}
-	if cfg.AWSRegion == "" || cfg.AWSEndpoint == "" {
-		return nil, fmt.Errorf("missing AWS_REGION or AWS_ENDPOINT in environment")
-	}
-	return cfg, nil
-}
-
 func main() {
-	cfg, err := LoadConfig()
+	region, err := config.GetAWSRegion()
+	if err != nil {
+		panic(err)
+	}
+	endpoint, err := config.GetAWSEndpoint()
 	if err != nil {
 		panic(err)
 	}
 
 	sess, err := session.NewSession(&aws.Config{
-		Region:   aws.String(cfg.AWSRegion),
-		Endpoint: aws.String(cfg.AWSEndpoint),
+		Region:   aws.String(region),
+		Endpoint: aws.String(endpoint),
 	})
 	if err != nil {
 		panic(err)
