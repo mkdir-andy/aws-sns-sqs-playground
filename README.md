@@ -82,9 +82,9 @@ This project demonstrates a minimal publisher and multiple consumers communicati
 ### Publisher (`cmd/publisher/main.go`)
 
 - **Config Loading:**
-  - Uses a `Config` struct and `LoadConfig()` to load AWS region and endpoint from `.env`.
+  - Uses `config.GetAWSRegion()` and `config.GetAWSEndpoint()` to load AWS region and endpoint from `.env` (via a shared helper in `internal/config`).
 - **AWS Session:**
-  - Creates an AWS session using the loaded config.
+  - Creates an AWS session using the loaded config values.
 - **SNS Topic Creation:**
   - Calls `CreateTopic` for `test-topic` (idempotent, returns ARN).
 - **Message Construction:**
@@ -98,9 +98,9 @@ This project demonstrates a minimal publisher and multiple consumers communicati
 ### Consumer (`cmd/consumer/main.go`)
 
 - **Config Loading:**
-  - Uses a `Config` struct and `LoadConfig()` to load AWS region, endpoint, and queue name from `.env`.
+  - Uses `config.GetAWSRegion()`, `config.GetAWSEndpoint()`, and `config.GetQueueName()` to load AWS region, endpoint, and queue name from `.env` (via a shared helper in `internal/config`).
 - **AWS Session:**
-  - Creates an AWS session using the loaded config.
+  - Creates an AWS session using the loaded config values.
 - **Queue URL:**
   - Looks up the SQS queue URL by name.
 - **Polling Loop:**
